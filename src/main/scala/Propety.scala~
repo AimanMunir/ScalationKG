@@ -1,0 +1,151 @@
+import scala.reflect._
+import scalation.math.{Complex, Rational, Real}
+import scalation.math.StrO
+import scalation.math.TimeO
+
+// MetaGraph for Properties 
+// Provides function for storing, deleting and updating property and its types
+
+import scala.collection.mutable.HashMap
+case class Property()
+{
+	type PrimitiveType = Real.type | Rational.type | StrO.type | TimeO.type | Complex.type
+	//type PrimitiveType = Int.type | String.type | Double.type | Long.type | Boolean.type
+	
+	val Prop = new HashMap[String,PrimitiveType]()
+	
+	def addProperty(name:String, value:PrimitiveType): Unit = 
+	{
+		Prop.put(name, value)
+	} // addProperty
+	
+	def removeProperty(name:String): Unit = 
+	{
+		Prop.remove(name)
+	} // removeProperty
+	
+	def getPropertiesList(): HashMap[String,PrimitiveType]=
+	{
+		Prop
+	}
+	/*def updatePrimitiveType(name:String, newPrType:PrimitiveType): Unit =
+	{
+		Prop.replace(name,newPrType)
+	} // updatePrimitiveTYpe}*/
+}
+
+class Person{
+ 
+     type PrimitiveType = Real.type | Rational.type | StrO.type | TimeO.type | Complex.type	
+     
+     type Primitive = Real | Rational | StrO.StrNum | TimeO.TimeNum | Complex
+     
+     var personPropValues = new HashMap[String, Primitive]
+     		
+     var personProp = new HashMap[String,PrimitiveType]
+     
+     def setProperties(Properties:HashMap[String,PrimitiveType]) :Unit=
+     {
+	personProp = Properties
+	}
+  
+     def getProperties():HashMap[String,PrimitiveType] =
+     {
+      	  personProp
+     }
+
+     def setPropertyValues(PropertyValue:Primitive*):Unit =
+     {
+	var propNames = personProp.keys.toList
+	println("propertyNames = "+propNames)
+	println("PropertyValues = "+PropertyValue)
+	}
+  
+}
+
+
+//case class for Element
+abstract class Element(properties:Property){
+var pro = properties.Prop
+}
+
+//case class for Node
+case class Node(propertiess:Property) extends Element(propertiess){
+var id = 0
+
+}
+
+//case class for Edge
+case class Edge(source:Node,target:Node,propertiess:Property)extends Element(propertiess){
+var to = target
+var from = source
+}
+
+
+object PropertyTest extends App
+{
+	var pro = new Property()
+	pro.addProperty("name",StrO)
+	println(pro.Prop)
+	pro.addProperty("age",StrO)
+	println(pro.Prop)
+	//pro.removeProperty("p1")
+	//pro.updatePrimitiveType("p2",StrO)
+	var p = pro.getPropertiesList()
+	println(p.keys)
+	
+	println("PersonTest")
+	var person = new Person()
+	person.setProperties(p)
+	println("Person prop")
+	
+	println(person.getProperties())
+	person.setPropertyValues("abc","123")
+
+}
+
+object ElementTest extends App
+{
+	println("For Node 1")
+	var pro1 = new Property()
+	println("Adding p1")
+	pro1.addProperty("name",StrO)
+	println("Adding p2")
+	pro1.addProperty("age",StrO)
+	var node1 = new Node(pro1)
+	var name1 = node1.pro
+	println(s"node1 == $name1")
+
+
+	println("\n\nFor node 2")
+	var pro2 = new Property()
+	println("Adding p3")
+	pro2.addProperty("p3",StrO)
+	println("Adding p4")
+	pro2.addProperty("p4",StrO)
+	val node2 = new Node(pro2)
+	val name2 = node2.pro
+	println(s"mynode2 == $name2")
+	
+
+	println("\n\n\n")
+	println("EdgeTest")
+	var edgeproperty = new Property()
+	edgeproperty.addProperty("EdgeProperty1",StrO)
+	var edge1 = new Edge(node1,node2,edgeproperty)
+	var node1ID =node1.id
+	var node2ID = node2.id
+	println(s"From node: $node1ID")
+	println(s"To node: $node2ID")
+	val edgePro = edge1.pro
+	println(s"Edge properties: $edgePro")
+}
+
+object PersonTest extends App
+{
+
+
+
+
+}
+
