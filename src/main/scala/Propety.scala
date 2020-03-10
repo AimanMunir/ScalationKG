@@ -6,62 +6,77 @@ import scalation.math.TimeO
 
 // MetaGraph for Properties 
 // Provides function for storing, deleting and updating property and its types
-
+import scala.collection.mutable._
 import scala.collection.mutable.HashMap
 //import java.util.HashMap
-abstract class Property()
+
+class PropertyGraph(name: String)
 {
-	type PrimitiveType = Real.type | Rational.type | StrO.type | TimeO.type | Complex.type | Int.type | Double.type | Long.type
+var GraphName = name 
+var GraphElements = List[Element]()
 
-	val Prop = new HashMap[String,PrimitiveType]()
-	
-	protected def addProperty(name:String, value:PrimitiveType): Unit = 
-		Prop.put(name, value)
-	end addProperty           // addProperty
+def addElements(element: Element): Unit =
+          GraphElements = GraphElements.::(element)
+end addElements      // addElements
 
-	protected def removeProperty(name:String): Unit = 
-		Prop.remove(name)
-	end removeProperty        // removeProperty
+def getElements(): List[Element] =
+          GraphElements
+end getElements      // getElements
+
+
+}
+
+abstract class Property
+{	 
+	  
 	
-	protected def getPropertiesList(): HashMap[String,PrimitiveType]=
-		Prop
-	end getPropertiesList
-	
-	/*def updatePrimitiveType(name:String, newPrType:PrimitiveType): Unit =
-		Prop.put(name,newPrType)
-	end updatePrimitiveType   // updatePrimitiveTYpe}*/
 }
 
 
 //abstract class for Element
-abstract class Element extends Property{
+abstract class Element{
+	 
+	 //addProperty 
+	 //set and getProperty
+	 type PrimitiveType = Real.type | Rational.type | StrO.type | TimeO.type | Complex.type | Int.type | Double.type | Long.type
+	 
+	 type Primitive = Real | Rational | StrO.StrNum | TimeO.TimeNum | Complex | Int | Double | Long          // To provide values for property e.g., name is "Node1"
+	
+	 var ElementProp = new LinkedHashMap[String,PrimitiveType]()
 	 
 	 var comparisonResult = false
 	 
-	 var ElementProp = new HashMap[String,PrimitiveType]()				// A HashMap to store names of properties and their PrimitiveType
+	 var ElementPropValues = List[Primitive]()                        // A list to store values of node
 	 
-	 type Primitive = Real | Rational | StrO.StrNum | TimeO.TimeNum | Complex | Int | Double | Long		 // To provide values for property e.g., name is "Node1"
+	 protected def addProperty(name: String, value: PrimitiveType): Unit =
+	 	   ElementProp.put(name, value)
+	 end addProperty           // addProperty
 
-	 var ElementPropValues = List[Primitive]()	  		  // A list to store values of node
+	 protected def removeProperty(name: String): Unit =
+	 	   ElementProp.remove(name)
+	 end removeProperty        // removeProperty
 	 
-	 def setEProperties(Properties:HashMap[String,PrimitiveType]) : Unit=	// Function to set Element's MetaProperties
-	     ElementProp = Properties
-	 end setEProperties
-	 
-	 def getEProperties():HashMap[String,PrimitiveType] =
+	 /*def updatePrimitiveType(name: String, newPrType: PrimitiveType): Unit =
+	      Prop.put(name,newPrType)
+	 end updatePrimitiveType   // updatePrimitiveTYpe}*/
+
+	 def getEProperties(): LinkedHashMap[String,PrimitiveType] =
 	     ElementProp
-	 end getEProperties		//end getEProperties
+	 end getEProperties	   //end getEProperties
 	 
-	 def setEPropertyValues(PropertyValues:Primitive*):Unit =
+	 def setEPropertyValues(PropertyValues: Primitive*):Unit ={
 
 	 if(ElementProp.size != PropertyValues.size )
 	 {
 	 println(s"${ElementProp.size} values Required")
+	 println("Couldn't set properties\n")
 	 } //end main if
-
-	 else if(ElementProp.size == PropertyValues.size )
+	 
+	 if(ElementProp.size == PropertyValues.size )
 	 {
-	 var MismatchCount = CompareValuesWithType(ElementProp, PropertyValues.toList)   //A variable to store number of mismatches between PropertyTypes and ValueTypes
+	 var MismatchCount = 0
+	 
+	 MismatchCount = CompareValuesWithType(ElementProp, PropertyValues.toList)   //A variable to store number of mismatches between PropertyTypes and ValueTypes
 	 
 	 if(MismatchCount == 0)
 	 {
@@ -74,7 +89,7 @@ abstract class Element extends Property{
 	 } //end 2nd else
 
 	 } //end main else
-	 end setEPropertyValues		// end setEPropertyValues
+	 }//end setEPropertyValues		// end setEPropertyValues
 
 	 // Function to get values of Element's Properties
 	 def getEPropertyValues(): List[Primitive]=
@@ -83,7 +98,7 @@ abstract class Element extends Property{
 
 
 	 // FUnction to Compare TypeOfProperties with given ValueList
-	 def CompareValuesWithType(PropertyList: HashMap[String,PrimitiveType], PropertyValues:List[Primitive]): Int={
+	 def CompareValuesWithType(PropertyList: LinkedHashMap[String,PrimitiveType], PropertyValues:List[Primitive]): Int={
 	 
 	 var PropNames = PropertyList.keys.toList
 	 var PropTypes = PropertyList.values.toList 
@@ -109,18 +124,35 @@ abstract class Element extends Property{
 	 
 	 } //end CompareValuesWithTypes
 	 
-	 
-	
-}
+} //end Element
 
-//case class for Node
-class Node extends Element{
+//class for Node
+class Node(g: PropertyGraph) extends Element{
 
 private var id=NodeId.currentCount()
+var SubjectEdges = List[Edge]()
+var ObjectEdges = List[Edge]()
 
-def getId():Int=	//Function to get Node Id
+def getId():Int=  //Function to get Node Id
     id
 end getId
+
+def addSubjectEdge(edge: Edge): Unit =
+	  SubjectEdges = SubjectEdges.::(edge)
+end addSubjectEdge	// addSubjectEdge
+
+def addObjectEdge(edge: Edge): Unit =
+	  ObjectEdges = ObjectEdges.::(edge)
+end addObjectEdge	// addObjectEdge
+
+def getSubjectEdges(): List[Edge] =
+          SubjectEdges
+end getSubjectEdges      // getSubjectEdges
+
+def getObjectEdges(): List[Edge] =
+          ObjectEdges
+end getObjectEdges      // getObjectEdges
+
 
 } //Node
 
@@ -137,21 +169,21 @@ object NodeId {
 
 
 
-
-//case class for NodeType
-case class NodeType(node : Node){
-
-} //NodeType
-
-//case class for EdgeType
-case class EdgeType(edge : Edge){
-
-} //EdgeType
-
 //case class for Edge
-case class Edge(source:Node,target:Node)extends Element(){
+class Edge(g: PropertyGraph,source: Node,target: Node)extends Element(){
 var to = target
 var from = source
+
+var SubjectNodes = List[Node]()
+var ObjectNodes = List[Node]()
+
+def addSubjectNode(node:Node): Unit =
+          SubjectNodes = SubjectNodes.::(node)
+end addSubjectNode      // addSubjectNode
+
+def addObjectNode(node:Node): Unit =
+          ObjectNodes = ObjectNodes.::(node)
+end addObjectNode       // addObjectNode
 
 def setNodesForEdge(fromNode:Node , toNode:Node) : Unit=
     from = fromNode
@@ -162,7 +194,7 @@ def getNodesofEdge()=
     (from,to)
 end getNodesofEdge    //end getNodesofEdge
 
-}   //Edge
+}   //EdgeType
 
 
 //case class TimeStamp
@@ -171,15 +203,15 @@ case class TimeStamp(edge : Edge){
 
 
 
-class Road extends Node{
+class Road(g: PropertyGraph) extends Node(g: PropertyGraph){
 
 addProperty("RoadName",StrO)
-addProperty("PostMile",Double)
+addProperty("Speed_limit",Int)
+addProperty("Lanes",Int)
 
-private val RoadProp = getPropertiesList()
-ElementProp = RoadProp
+private val RoadProp = getEProperties()
 
-def getRoadProperties(): HashMap[String,PrimitiveType] =       // Function to get Road Propertiess
+def getRoadProperties(): LinkedHashMap[String,PrimitiveType] =       // Function to get Road Propertiess
     RoadProp
 end getRoadProperties		// end getRoadProperties
 
@@ -187,39 +219,80 @@ end getRoadProperties		// end getRoadProperties
 
 
 
-class Sensor extends Node{
+class Sensor(g: PropertyGraph) extends Node(g: PropertyGraph){
 
-addProperty("SesorName",StrO)
+addProperty("SensorName",StrO)
 addProperty("Latitude",Double)
 addProperty("Longitude",Double)
 
-private val SensorProp= getPropertiesList()
-ElementProp = SensorProp
+private val SensorProp= getEProperties()
 
-def getSensorProperties():HashMap[String,PrimitiveType]=	// Function to set values of Road's Properties
+def getSensorProperties(): LinkedHashMap[String,PrimitiveType]=	// Function to set values of Road's Properties
     SensorProp
 end getSensorProperties 
     
 } //Sensor
 
 
+case class Intersection (g: PropertyGraph, r1: Road, r2: Road)
+     extends Edge (g, r1, r2)
+{
+addProperty("Control",StrO)
+
+} 
+
+case class On (g: PropertyGraph, r1: Road, s1: Sensor)
+     extends Edge (g, r1, s1)
+{
+
+
+} 
+
+
+object RoadIntersectionTest extends App
+{
+val g = PropertyGraph("Athens_Road")
+
+val main = Road (g) 
+main.setEPropertyValues("main",35,2)
+
+
+val oak  = Road (g)
+oak.setEPropertyValues("oak",45,1)
+
+val main2oak = Intersection (g, main, oak)
+main2oak.setEPropertyValues("stop_sign")
+
+
+
+
+}
+
+
+
+
 object RoadTest extends App
 {
-var road1 = new Road()
-var sensor1 = new Sensor()
+val g = PropertyGraph("Athens_Road")
 
-road1.setEPropertyValues("Highway1",34.0)
+val main = Road (g)
+main.setEPropertyValues("main",35,2)
+
+var sensor1 = new Sensor(g)
 sensor1.setEPropertyValues("Sensor1",33.0,34.0)
 
-var edge1= new Edge(road1,sensor1)
+//println(road1.ElementProp)
+//println(sensor1.ElementProp)
 
-var ToNode = edge1.to
-var FromNode = edge1.from
+var sensorOnMain = new On(g,main,sensor1)
+
+var ToNode = sensorOnMain.to
+var FromNode = sensorOnMain.from
 
 println(s"Nodes in edges:")
 println(s"First Node: ${FromNode.getEPropertyValues()}")
 println(s"ID for firstNode:${FromNode.getId()}")
 
 println(s"Sencond Node: ${ToNode.getEPropertyValues()}")
-println(s"ID for firstNode:${ToNode.getId()}")
+println(s"ID for secondNode:${ToNode.getId()}")
 } //RoadTest
