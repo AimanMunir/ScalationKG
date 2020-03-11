@@ -72,10 +72,10 @@ class NodeType(name : String){
      */
     def addProperty(propertyName : String, domain : String) =
     {
-    	nProp += 1
-    	propertyNameMap.update(propertyName, nProp)
-	    meta = meta :+ domain
-    }
+	nProp += 1
+	propertyNameMap.update(propertyName, nProp)
+	meta = meta :+ domain
+	}
 
     /*
      * Get the meta information for this NodeType
